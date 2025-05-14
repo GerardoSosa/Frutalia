@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frutalia - Pedidos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://images.unsplash.com/photo-1580910051073-2cc2322f98de?auto=format&fit=crop&w=1500&q=80') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      background-color: rgba(255, 248, 225, 0.95);
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #e65100;
+    }
+
+    form {
+      display: grid;
+      gap: 1rem;
+    }
+
+    label {
+      font-weight: bold;
+      color: #4e342e;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    input, select, textarea, button {
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #fb8c00;
+    }
+
+    .exito {
+      color: green;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .pedidos {
+      margin-top: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #ffe082;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fa-solid fa-blender"></i> Frutalia - Pedido para recoger</h1>
+    <form id="pedidoForm">
+      <label for="nombre"><i class="fa-solid fa-user"></i> Nombre del cliente:</label>
+      <input type="text" id="nombre" name="Nombre del cliente" required />
+
+      <label for="telefono"><i class="fa-solid fa-phone"></i> Teléfono:</label>
+      <input type="tel" id="telefono" name="Teléfono" required />
+
+      <label for="sabor"><i class="fa-solid fa-lemon"></i> Sabor del jugo:</label>
+      <select id="sabor" name="Sabor del jugo" required>
+        <option value="">--Selecciona--</option>
+        <option value="naranja">Naranja</option>
+        <option value="mango">Mango</option>
+        <option value="fresa">Fresa</option>
+        <option value="piña">Piña</option>
+      </select>
+
+      <label for="tamano"><i class="fa-solid fa-glass-water"></i> Tamaño:</label>
+      <select id="tamano" name="Tamaño" required>
+        <option value="">--Selecciona--</option>
+        <option value="chico">Chico</option>
+        <option value="mediano">Mediano</option>
+        <option value="grande">Grande</option>
+      </select>
+
+      <label for="comentarios"><i class="fa-solid fa-comment"></i> Comentarios adicionales:</label>
+      <textarea id="comentarios" name="Comentarios adicionales"></textarea>
+
+      <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar Pedido</button>
+    </form>
+    <p id="mensajeExito" class="exito"></p>
+
+    <section class="pedidos">
+      <h2><i class="fa-solid fa-clipboard-list"></i> Pedidos Registrados</h2>
+      <div id="tablaPedidos"></div>
+    </section>
+  </div>
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwuTN49TnWo4aS49HzBl8xm4u8U997CF4UIGh1cLm1QOIoMO2KDyauSvjeT39U-wVcV/exec';
+    const form = document.getElementById('pedidoForm');
+    const mensajeExito = document.getElementById('mensajeExito');
+    const tablaPedidos = document.getElementById('tablaPedidos');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const formData = new FormData(form);
+
+      fetch(scriptURL, { method: 'POST', body: formData })
+        .then(response => {
+          mensajeExito.textContent = 'Tu pedido ha sido enviado con éxito, pasa a recogerlo en 10 minutos. ¡Frutalia agradece tu preferencia!';
+          form.reset();
+          obtenerPedidos();
+        })
+        .catch(error => alert('Error al enviar pedido. Intenta nuevamente.'));
+    });
+
+    function obtenerPedidos() {
+      fetch(scriptURL)
+        .then(res => res.json())
+        .then(data => {
+          if (!Array.isArray(data)) return;
+
+          let tablaHTML = '<table><tr><th>Nombre</th><th>Teléfono</th><th>Sabor</th><th>Tamaño</th><th>Comentarios</th></tr>';
+          data.reverse().forEach(row => {
+            tablaHTML += `<tr>
+              <td>${row[0]}</td>
+              <td>${row[1]}</td>
+              <td>${row[2]}</td>
+              <td>${row[3]}</td>
+              <td>${row[4]}</td>
+            </tr>`;
+          });
+          tablaHTML += '</table>';
+          tablaPedidos.innerHTML = tablaHTML;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', obtenerPedidos);
+  </script>
+</body>
+</html>
